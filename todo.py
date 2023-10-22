@@ -1,3 +1,7 @@
+
+from operator import contains
+from tkinter import dialog
+from turtle import update
 from kivymd.app import MDApp
 from kivymd.uix.widget import Widget
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -5,27 +9,97 @@ from kivymd.uix.relativelayout import MDRelativeLayout
 from kivy.lang.builder import Builder
 # locale.setlocale(locale.LC_TIME,'it_IT.UTF-8')
 from kivymd.uix.scrollview import MDScrollView
+from kivymd.uix.screen import Screen
+from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.scrollview import MDScrollView
-from kivymd.uix.list import MDList,ThreeLineAvatarIconListItem,ILeftBody 
+from kivymd.uix.list import MDList,ThreeLineAvatarIconListItem,ILeftBody ,OneLineAvatarIconListItem
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.button import MDTextButton
 from kivymd.uix.button import MDRaisedButton
 from kivymd.uix.label import MDLabel
 from kivymd.uix.pickers import MDDatePicker
-from kivymd.uix.card import MDCard
+from kivymd.uix.card import MDCard,MDCardSwipe,MDCardSwipeLayerBox,MDCardSwipeFrontBox
+
 from kivymd.uix.chip import MDChip
+from kivymd.uix.gridlayout import MDGridLayout
+from kivy.properties import Clock,StringProperty, NumericProperty
+from kivy.metrics import dp
+from kivymd.uix.bottomsheet import MDCustomBottomSheet,MDBottomSheet
 from datetime import datetime
 from sqlite3 import SQLITE_EMPTY,SQLITE_ERROR,OperationalError
-from plyer import notification
-import locale
+# from plyer import notification
+import locale  
 from database import Database
 db = Database()
 
+class task_content_screen(Screen):
+    regular = StringProperty('AllertaStencil-Regular.ttf')
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        ''' REGOLA L ALTEZZ ADEI LAYOUT IN MODO DA AVERE SPAZIO PER  LO SCROLLING '''
+        self.ids.widget_box.bind(minimum_height = self.ids.widget_box.setter('height'))
+        self.grid = [grid for child in self.ids.widget_box.children if isinstance(child,MDList) for grid in child.children if isinstance(grid,MDGridLayout)]
+    def update(self):
+        # for i in self.ids.widget_box.children:
+        #     self.ids.widget_box.height +=i.height
+            
+        for j in self.grid[0].children:
+            j.parent.height+=j.height/7
+            self.ids.widget_box.height +=j.parent.height/90
+        print(self.ids.widget_box.height)
+
+    def Priorita_sort(self,instance):
+        pass
+    
+    def add_subtask(self,sottoObiettivo):
+        ''' accedi alla list degli item tramite ID'''
+        LISTA_ITEM = self.grid[0]
+
+        ''' creare un oggetto di tipo OneLineAvatarIconListItem'''
+        Sub_Task = OneLine_AvatarIcon_ListItem(text=sottoObiettivo.text,text_color='white',_no_ripple_effect = 1,divider=None, pos_hint={'center_x':.5,'center_y':.5})
+
+        swipe_card = Swipecard(size_hint = (1,None),height =Sub_Task.height-10)
+
+        ''' crea un istansa di MDRelativeLayout '''
+        RL_Layout = MDRelativeLayout(size_hint_y = None,height=swipe_card.height,pos_hint={'center_x':.5,'center_y':.5})
+
+        ''' aggiugni i widget '''
+        RL_Layout.add_widget(Sub_Task)
+        swipe_card.ids.frontbox.add_widget(RL_Layout)
+        LISTA_ITEM.add_widget(swipe_card)
+      
+       
+        ''' pulisci input '''
+        sottoObiettivo.text = ''
+        self.update()
+
+class Swipecard(MDCardSwipe):
+    def check_state(self,swipecard):
+        for swipe in swipecard.parent.children:
+            if swipe!=swipecard :
+             
+                swipe.close_card()
+                print(swipe.state)
+class OneLine_AvatarIcon_ListItem(OneLineAvatarIconListItem):
+    pass
+            
+    # def on_open_progress(self,instance,value:float):
+    #     # print(instance)
+    #     pass
+      
+            
+
+
+
+
+class MainScreen(Screen):
+    pass
 class CARD(MDCard):
-    ''' inizializza il card class '''
+    ''' inizializza il card class ''' 
     def __init__(self,**kwargs):
         super().__init__() 
 
@@ -117,89 +191,135 @@ class MainApp(MDApp):
     def build(self):
         self.theme_cls.theme_style='Dark'
         self.theme_cls.primary_palette = 'DeepPurple'
+        self.theme_cls.material_style = 'M3'
         locale.setlocale(locale.LC_TIME,'it_IT.UTF-8')
         print(dir(locale))
+        
         self.LISTA_TASK_TO_MODIFY = []
-    
-        return Builder.load_file('todo.kv')
+        self.sm = MDScreenManager()
+        Builder.load_file('todo.kv')
+        self.sm.add_widget(MainScreen(name = 'main screen'))
+        return self.sm
     
     def Open_dialog(self):
         try:
-
+            
             self.dialog = MDDialog(title = 'aggiugni un nuovo campito'.capitalize(),type ='custom',
             content_cls = Dialog_content())
             self.dialog.open()
 
-            
         except Exception as e:
             print(str(e))
     
+    def check_inputs(self,instance):
+        content = Dialog_content()
+        itemlist = ListItemWith_Checkbox()
+        ''' controlla gli inputs se hanno un valore inserito'''
+        content.ids.task.text = 'ciao'  
+       
+        if content.ids.task.text !='' or content.ids.task_title.text !='':
+                content.ids.salva.disabled = False
+        
+        # if content.ids.task.text == itemlist.text  or content.task_title.text == itemlist.secondary_text:
+        #         content.ids.save_mod_button.disabled = True
+        # else:
+        #     content.ids.save_mod_button.disabled = False
 
-    def add_task(self,task_title,task,date_text):
+        
+        
+
+
+    def add_task(self,instance,task_title,task,date_text):
         try:
+            if  task_title.text != '' or task.text != '':
 
-            ''' add task passando i valori al data base '''
-            TASK =  db.add_task(task_title.text.title(), task.text, date_text.text)
+                if  instance.text == 'salva':
 
-            ''' crea un istanza di CARD che conterra RELATIVE_LY '''
-            
+                    ''' add task passando i valori al data base '''
+                    TASK =  db.add_task(task_title.text.title(), task.text, date_text.text)
 
-            ''' crea una relativa layout per inserire il  ListItemWith_Checkbox e le label'''
-            relative_ly =RELATIVE_LY()
-            relative_ly.add_widget(ListItemWith_Checkbox(pk=str(TASK[0]), text = str(TASK[1]),
-                        secondary_text= str(TASK[2]), tertiary_text =str(TASK[3])))
-            Card = CARD()
-            Card.add_widget(relative_ly)
-            
+                    ''' crea un istanza di CARD che conterra RELATIVE_LY '''
+                    
 
-            print(TASK)
-            self.root.ids['container'].add_widget(Card)
-            
-            print(task_title.text,task.text,date_text.text)
-            task.text = ''
-            task_title.text = ''
-            self.close_dialog()
-            self.send_notify()
-        except SQLITE_ERROR as e:
-            print(str(e))
+                    ''' crea una relativa layout per inserire il  ListItemWith_Checkbox e le label'''
+                    relative_ly =RELATIVE_LY()
+                    relative_ly.add_widget(ListItemWith_Checkbox(pk=str(TASK[0]), text = str(TASK[1]),
+                                secondary_text= str(TASK[2]), tertiary_text =str(TASK[3])))
+                    Card = CARD()
+                    Card.add_widget(relative_ly)
+                    
+
+                    print(TASK)
+                    container = self.root.get_screen('main screen')
+                    container.ids['container'].add_widget(Card)
+                   
+                    
+                    print(task_title.text,task.text,date_text.text)
+                    task.text = ''
+                    task_title.text = ''
+                    self.close_dialog()
+                    # self.send_notify()
+            else:
+                empty_campo_popup = MDDialog(title = 'avviso', text = '** i campi sono vuoti per favore riempili ;) **',size_hint = (.5,.2),
+                    buttons=[MDRaisedButton(text="OK", pos_hint = {'right':.7}, on_release=lambda x : empty_campo_popup.dismiss())])
+                empty_campo_popup.open()
+        # except SQLITE_ERROR as e:
+        #     print(str(e))
         except Exception as e:
             print(str(e))
 
-    # def modify_task(self,itemlist):
+    def Open_content_task_screen(self,itemlist):
+        content_task = task_content_screen(name = 'task content')
+        content_task.ids.top_bar.title = itemlist.text
+    #    
+
+        self.sm.add_widget(content_task)
         
-    #     self.LISTA_TASK_TO_MODIFY.append((itemlist.text,itemlist.secondary_text))
-    #     print(self.LISTA_TASK_TO_MODIFY)
+        self.sm.current = 'task content'
         
-    #     self.dialog.open()
+
+
     def Open_dialog_to_modify_task(self,itemlist):
+        self.dialog = MDDialog(title = 'modifica compito'.capitalize(),type ='custom',
+        content_cls = Dialog_content())
+
+        ''' modifica la funzione e il comportamento dei bottoni '''
+        content = self.dialog.content_cls
+        content.ids.salva.text = 'salva modifiche'
+        content.ids.cancel.text = 'annulla'
+
+        content.ids.salva.bind(on_press = self.save_modified_task)
         self.LISTA_TASK_TO_MODIFY.append((itemlist.text,itemlist.secondary_text))
         print(self.LISTA_TASK_TO_MODIFY)
 
-        self.dialog = MDDialog(title = 'modifica compito'.capitalize(),type ='custom',
-        content_cls = Dialog_content())
 
         ''' crea un istanza di dialog per accedere ai widget del contenuto '''
         content = self.dialog.content_cls
         content.ids.task_title.text =itemlist.text
         content.ids.task.text =itemlist.secondary_text
 
-        ''' init the save button e disabilita il b[salva]'''
-        content.ids.save_mod_button.disabled=False
-        content.ids.save_mod_button.bind(on_press = self.save_modified_task)
-        content.ids.salva.disabled = True
+        # ''' init the save button e disabilita il b[salva]'''
+        # content.ids.save_mod_button.disabled=False
+        # content.ids.save_mod_button.bind(on_press = self.save_modified_task)
+        # content.ids.salva.disabled = True
 
         ''' apri il widget [DIALOGO]'''
         self.dialog.open()
+        # Clock.schedule_interval(self.check_inputs,0.1)
     
     def close_dialog(self):
-        self.dialog.dismiss()
+        if self.dialog:
+
+            self.dialog.dismiss()
+            print('suiiiii')
 
 
     def save_modified_task(self,instance):
         try:
             if instance.text == 'salva modifiche':
                 content = self.dialog.content_cls
-                list_element = self.root.ids['container']
+                container = self.root.get_screen('main screen')
+                list_element = container.ids['container']
                 list_task =[item for card in list_element.children if isinstance(card,MDCard) for rl in card.children if isinstance(rl,MDRelativeLayout) for item in rl.children if isinstance(item,ThreeLineAvatarIconListItem)] 
 
                 for child in list_task:
@@ -214,11 +334,12 @@ class MainApp(MDApp):
                         self.LISTA_TASK_TO_MODIFY.clear()
                         print(self.LISTA_TASK_TO_MODIFY)
 
-                        self.close_dialog()
                         content.ids.task.text =''
                         content.ids.task_title.text =''
+                        # self.close_dialog()
             else:
-                self.close_dialog()
+                # self.close_dialog()
+                print(instance.text)
         except Exception as e:
             print(str(e))
 
@@ -227,18 +348,18 @@ class MainApp(MDApp):
 
     
 
-    def send_notify(self):
+    # def send_notify(self):
 
-        title = 'task aggiunto!'
-        message = 'dacci dentro'.capitalize()
-        notification.notify(
-            title = title,
-            message = message,
-            app_name = 'task manager'.title(),
-            ticker = 'basta procrastinare!!',
-            timeout = 4
+    #     title = 'task aggiunto!'
+    #     message = 'dacci dentro'.capitalize()
+    #     notification.notify(
+    #         title = title,
+    #         message = message,
+    #         app_name = 'task manager'.title(),
+    #         ticker = 'basta procrastinare!!',
+    #         timeout = 4
     
-        )
+    #     )
     def on_start(self):
         try:
 
@@ -252,7 +373,9 @@ class MainApp(MDApp):
 
                     Card = CARD()
                     Card.add_widget(relative_ly)
-                    self.root.ids['container'].add_widget(Card)
+
+                    container = self.root.get_screen('main screen')
+                    container.ids['container'].add_widget(Card)
             if completi is not None:
                 for task in completi:
                     task_completi = ListItemWith_Checkbox(pk = task[0],text ='[s]'+str(task[1])+'[/s]',secondary_text='[s]'+str(task[2])+'[/s]',tertiary_text = str(task[3]))
@@ -264,14 +387,17 @@ class MainApp(MDApp):
                     ''' CREA UN ISTANZA DI CARD '''
                     Card = CARD()
                     Card.add_widget(relative_ly) 
-                    self.root.ids['container'].add_widget(Card)
+
+                    container = self.root.get_screen('main screen')
+                    container.ids['container'].add_widget(Card)
         except Exception as e:
             print(str(e))
                 
     def on_stop(self):
         ''' elimina tutti i widget dal parent'''
-        for i in self.root.ids['container'].children:
-            self.root.ids['container'].remove_widget(i)
+        container = self.root.get_screen('main screen')
+        for i in container.ids['container'].children:
+            container.ids['container'].remove_widget(i)
             print('leavinggg')
 
 

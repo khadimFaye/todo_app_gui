@@ -1,73 +1,78 @@
 
+MainScreen:
 
+<MainScreen>:
+    MDRelativeLayout:
+        id : s
+        pos_hint : {'center_x':.5,'center_y':.5}
+        padding:10
+        canvas:
+            Color:
+                rgb:(24/255,24/255,24/255)
+            Rectangle:
+                
+                pos : (0,0)
+                size : self.width,self.height
+        MDLabel : 
+            id: questions_label
+            text : 'gestore compiti'.upper()
+            font_style : 'H6'
+            font_size :dp(20)
+            halign : 'center'.lower()
+            valign : 'middle'
+            theme_text_color : 'Custom'
+            text_color :'#F8F5F7'
+            pos_hint : {'center_x':.5,'center_y':.9290}
+
+        MDTextField : 
+            id: search_bar 
+            size_hint : .8,.06
+            hint_text : 'cerca...'
+            text_color_focus : (179/255, 179/255, 179/255)
+            hint_text_color_normal : (67/255, 67/255, 67/255)
+            mode : 'round'
+            fill_color_normal : (40/255, 40/255, 40/255)
+            pos_hint : {'center_x':.5,'center_y':.85}
+        #MDRelativeLayout:
     
-MDRelativeLayout:
-    pos_hint : {'center_x':.5,'center_y':.5}
-    padding:10
-    canvas:
-        Color:
-            rgb:(24/255,24/255,24/255)
-        Rectangle:
             
-            pos : (0,0)
-            size : self.width,self.height
-    MDLabel : 
-        id: questions_label
-        text : 'gestore compiti'.upper()
-        font_style : 'H6'
-        font_size :dp(20)
-        halign : 'center'.lower()
-        valign : 'middle'
-        theme_text_color : 'Custom'
-        text_color :'#F8F5F7'
-        pos_hint : {'center_x':.5,'center_y':.9290}
-
-    MDTextField : 
-        id: search_bar 
-        size_hint : .8,.06
-        hint_text : 'cerca...'
-        text_color_focus : (179/255, 179/255, 179/255)
-        hint_text_color_normal : (67/255, 67/255, 67/255)
-        mode : 'round'
-        fill_color_normal : (40/255, 40/255, 40/255)
-        pos_hint : {'center_x':.5,'center_y':.85}
-    #MDRelativeLayout:
-   
+        MDScrollView:
+            size_hint : 0.8,0.9
+            pos_hint : {'center_x':.5,'center_y':.30}
+            padding : 10
+            MDList:
+                id : container
+                spacing : 10
         
-    MDScrollView:
-        size_hint : 0.8,0.9
-        pos_hint : {'center_x':.5,'center_y':.30}
-        padding : 10
-        MDList:
-            id : container
-            spacing : 10
-    
-        #pos_hint : {'center_x':.8,'center_y':1}
+            #pos_hint : {'center_x':.8,'center_y':1}
+            
         
-    
-    #MDChip:
-        #text :'completati'
-        #pos_hint : {'center_x':.16,'center_y':.7}
-
-        
-    
-
+        #MDChip:
+            #text :'completati'
+            #pos_hint : {'center_x':.16,'center_y':.7}
 
             
         
-    MDCard:
-        id : float_button_card
-        size_hint:None,None
-        size : 50,50
-        radius:[20,20,20,20]
-        pos_hint : {'right':.85,'top':.2}
-        elevation : 2
-        MDRelativeLayout:
-            siz_hint_y : None
-            height : float_button_card.height
-            MDIconButton:
-                icon : 'plus'
-                on_press : app.Open_dialog()
+
+
+                
+            
+        MDCard:
+            id : float_button_card
+            size_hint:None,None
+            size : 50,50
+            radius:[20,20,20,20]
+            pos_hint : {'right':.85,'top':.2}
+            elevation : 2
+            MDRelativeLayout:
+                siz_hint_y : None
+                height : float_button_card.height
+                MDIconButton:
+                    icon : 'plus'
+                    on_press : app.Open_dialog()
+        
+    
+
     
     
             
@@ -129,7 +134,8 @@ MDRelativeLayout:
         MDRaisedButton:
             id : salva
             text: 'salva'
-            on_press : app.add_task(task_title,task,date_text_label)
+            disabled : 0
+            on_press : app.add_task(self,task_title,task,date_text_label)
 
         MDRaisedButton:
             id : cancel
@@ -138,17 +144,7 @@ MDRelativeLayout:
             disabled : 0
             on_press : app.close_dialog()
 
-        MDRaisedButton:
-            id : save_mod_button
-            text: 'salva modifiche'
-            disabled : True
-            #on_press : app.save_modified_task(self)
         
-        MDRaisedButton:
-            id : annulla
-            text: 'annulla'
-            disabled : True
-            on_press : app.save_modified_task(self)
 
 
          
@@ -164,7 +160,8 @@ MDRelativeLayout:
     secondary_text_font_style : 'Subtitle1'
     teritiary_text_font_style : 'Caption'
     teritiary_text_font_size : dp(4)  
-    on_press : app.Open_dialog_to_modify_task(itemlist)
+    #on_press : app.Open_dialog_to_modify_task(itemlist)
+    on_press : app.Open_content_task_screen(itemlist)
     divider :None
     
     CheckboxLeftWidget:
@@ -176,7 +173,161 @@ MDRelativeLayout:
         icon : 'trash-can-outline'
         on_press : root.delet_item(trash,itemlist)
 
+
+
+<task_content_screen> :
+    name : 'task content'
+    MDRelativeLayout:
+   
+                      
+        MDTopAppBar:
+            id : top_bar
+            title : 'task title'.title()
+            anchor_title : 'center'
+            elevation : 1
+            md_bg_color : '#1a1a1a'
+            left_action_items : [['chevron-left',lambda x: print('hello')]]
+            right_action_items : [['swap-vertical',lambda x : root.Priorita_sort(self)]]
+            pos_hint: {'center_x':.5,'center_y':.95}
+
         
+        MDScrollView:
+            id : scroll
+            size_hint :(1,.8)
+           
+            pos_hint: {'center_x':.5,'center_y':.45}
+           
+            do_scroll_y : True
+            always_overscroll :0
+            scroll_distance : 200
+            MDBoxLayout:
+                id : widget_box
+                orientation : "vertical"
+                size_hint_y : None
+               
+            
+                padding : dp(10)
+                spacing : dp(15)
+                pos_hint: {'center_x':.5,'center_y':.99}
+                
+                
+                MDCard:
+                    id : board
+                    size_hint : (1,None)
+                    height : 80
+                    radius: [15]
+                    md_bg_color : top_bar.md_bg_color
+                    
+                    MDRelativeLayout:
+                        size_hint_y: None
+                        height : board.height
+                        pos_hint: {'center_x':.5,'center_y':.5}
+                        MDGridLayout:
+                            rows : 1
+                            spacing : dp(10)
+                            pos_hint: {'center_x':.5,'center_y':.5}
+                            
+                            MDLabel :
+                                id : tempo
+                                text : '00:00'
+                                halign : 'center'
+                                font_name : root.regular
+                                theme_text_color  : 'Custom'
+                                text_color : '#5112a3'
+                                font_size : dp(25)
+
+                            MDLabel :
+                                id : obiettivo
+                                text : '0'
+                                halign : 'center'
+                                font_name : root.regular
+                                theme_text_color : 'Custom'
+                                text_color : '#5112a3'
+                                font_size : dp(25)
+                            MDLabel :
+                                id : tempo_trascorso
+                                text : '00:00'
+                                halign : 'center'
+                                font_name : root.regular
+                                theme_text_color : 'Custom'
+                                text_color : '#5112a3'
+                                font_size : dp(25)
+                            
+                            MDLabel :
+                                id : obiettivo_da_comp
+                                text : '0'
+                                halign : 'center'
+                                font_name : root.regular
+                                theme_text_color : 'Custom'
+                                text_color : '#5112a3'
+                                font_size : dp(25)
+
+                MDTextField:
+                    id : titolo
+                    size_hint : (1,None)
+                    height : 40
+                    text_color_focus : '#F8F5F7'
+                    text_color_normal : '#F8F5F7'
+                    hint_text : 'aggiungi un obiettivo...'
+                    hint_text_color_normal : (209/255, 209/255, 209/255) if titolo.text =='' else (43/255,43/255,43/255,43/255)
+                    hint_text_color_focus : (43/255,43/255,43/255,43/255)
+
+                    mode : 'fill'
+                    fill_color_focus : (43/255,43/255,43/255,43/255)
+                    fill_color_normal : (43/255,43/255,43/255,43/255)
+                    
+                    icon_left : 'plus'
+                    icon_left_color_normal : (209/255, 209/255, 209/255)
+                    icon_left_color_focus : (209/255, 209/255, 209/255)
+                    line_color_focus : (43/255,43/255,43/255,43/255)
+                    on_text_validate :  root.add_subtask(titolo)
+                
+                
+
+                MDList:
+                    pos_hint : {'y':.4}
+                    MDGridLayout:
+                        id : grid_item
+                        cols : 1
+                        size_hint_y:None
+                        height : 300
+                        id : grid_subtasks
+                        spacing : dp(10)
+
+
+<Swipecard>:
+    id : swipecard
+    type_swipe : 'hand'
+    swipe_distance : dp(70)
+    MDCardSwipeLayerBox:
+        mg_bg_color : '#db164e'
+        radius : [10]
+        MDIconButton :
+            icon : 'trash-can'
+    MDCardSwipeFrontBox:
+        id: frontbox
+        md_bg_color: '#1a1a1a'
+        radius: [10]
+        on_press : root.check_state(swipecard)
+
+<OneLine_AvatarIcon_ListItem>:
+    IconRightWidget:
+        icon : 'play-circle'
+        theme_icon_color : 'Custom'
+        icon_color : '#5112a3'
+       
+                        
+                       
+                       
+        
+          
+           
+            
+
+           
+
+           
+
    
 
     
