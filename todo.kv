@@ -237,8 +237,8 @@ MainScreen:
                                 font_size : dp(25)
 
                             MDLabel :
-                                id : obiettivo
-                                text : '0'
+                                id : obiettivi
+                                text : root.num_obj
                                 halign : 'center'
                                 font_name : root.regular
                                 theme_text_color : 'Custom'
@@ -298,12 +298,15 @@ MainScreen:
 <Swipecard>:
     id : swipecard
     type_swipe : 'hand'
-    swipe_distance : dp(70)
+    swipe_distance : dp(40)
+    max_swipe_x : .2
+    max_opened_x :70
     MDCardSwipeLayerBox:
         mg_bg_color : '#db164e'
         radius : [10]
         MDIconButton :
             icon : 'trash-can'
+            on_press : root.delet_sub_task(swipecard)
     MDCardSwipeFrontBox:
         id: frontbox
         md_bg_color: '#1a1a1a'
@@ -315,6 +318,10 @@ MainScreen:
         icon : 'play-circle'
         theme_icon_color : 'Custom'
         icon_color : '#5112a3'
+    IconLeftWidget:
+        icon : 'circle-outline'
+        id : circle_icon
+        on_press : root.check_icon(self)
        
                         
                        

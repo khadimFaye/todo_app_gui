@@ -1,7 +1,9 @@
 
+from cgitb import text
 from operator import contains
 from tkinter import dialog
 from turtle import update
+from keyboard import on_press
 from kivymd.app import MDApp
 from kivymd.uix.widget import Widget
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -37,20 +39,29 @@ db = Database()
 
 class task_content_screen(Screen):
     regular = StringProperty('AllertaStencil-Regular.ttf')
+    num_obj = StringProperty('0')
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         ''' REGOLA L ALTEZZ ADEI LAYOUT IN MODO DA AVERE SPAZIO PER  LO SCROLLING '''
         self.ids.widget_box.bind(minimum_height = self.ids.widget_box.setter('height'))
         self.grid = [grid for child in self.ids.widget_box.children if isinstance(child,MDList) for grid in child.children if isinstance(grid,MDGridLayout)]
+        self.card = [card for card in self.ids.widget_box.children if isinstance(card,MDList) ]
+
+    def update_num_obbiettivi(self):
+        ''' aggiorna il numero degli obiettivi '''
+        lista_obiettivi = [obj for obj in self.grid[0].children if isinstance(obj,MDCardSwipe)]
+        num_obiettivi = len(lista_obiettivi)
+        self.num_obj =str(num_obiettivi)
+        return str(num_obiettivi)
+
     def update(self):
-        # for i in self.ids.widget_box.children:
-        #     self.ids.widget_box.height +=i.height
-            
+
         for j in self.grid[0].children:
             j.parent.height+=j.height/7
             self.ids.widget_box.height +=j.parent.height/90
         print(self.ids.widget_box.height)
+        self.update_num_obbiettivi()
 
     def Priorita_sort(self,instance):
         pass
@@ -59,8 +70,13 @@ class task_content_screen(Screen):
         ''' accedi alla list degli item tramite ID'''
         LISTA_ITEM = self.grid[0]
 
-        ''' creare un oggetto di tipo OneLineAvatarIconListItem'''
-        Sub_Task = OneLine_AvatarIcon_ListItem(text=sottoObiettivo.text,text_color='white',_no_ripple_effect = 1,divider=None, pos_hint={'center_x':.5,'center_y':.5})
+        ''' creare un oggetto di tipo OneLineAvatarIconListItem e [e task tag]'''
+        task_tag = MDLabel(text= f'#{self.ids.top_bar.title}',
+            font_style = 'Body2',font_size=dp(10),theme_text_color='Custom',text_color ='#316bd6')
+        
+        Sub_Task = OneLine_AvatarIcon_ListItem(
+            text=f'{sottoObiettivo.text}  {task_tag.text}',
+           _no_ripple_effect = 1,divider=None, pos_hint={'center_x':.5,'center_y':.5})
 
         swipe_card = Swipecard(size_hint = (1,None),height =Sub_Task.height-10)
 
@@ -78,15 +94,45 @@ class task_content_screen(Screen):
         self.update()
 
 class Swipecard(MDCardSwipe):
+    def __init__(self,**kawrgs):
+        super().__init__(**kawrgs)
+
     def check_state(self,swipecard):
         for swipe in swipecard.parent.children:
             if swipe!=swipecard :
              
                 swipe.close_card()
                 print(swipe.state)
-class OneLine_AvatarIcon_ListItem(OneLineAvatarIconListItem):
-    pass
+    def delet_sub_task(self,sub_task):
+        confirmation = MDDialog(title = 'attenzione!',text ='vuoi veramente eliminare questo obiettivo?',
+                buttons = [MDRaisedButton(text='si',on_press = lambda x: confirm()),
+                           MDRaisedButton(text = 'no',on_press = lambda x:confirmation.dismiss() )])
+        confirmation.open()
+        print('helo')
+        ''' crea un sub function per la conferma di concellazione'''
+        def confirm():
+            sub_task.parent.remove_widget(sub_task)
             
+            confirmation.dismiss()
+
+            ''' aggorna il contatore di obbietivi '''
+            task_content = task_content_screen()
+            task_content.num_obj='0' #task_content.update_num_obbiettivi()
+
+    
+class OneLine_AvatarIcon_ListItem(OneLineAvatarIconListItem):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
+        self.font_size = dp(10)
+        self.font_style = 'Body2'
+        self.text_color='white'
+
+
+    def check_icon(self,instance):
+        if instance.icon!='check-circle':
+            self.ids.circle_icon.icon = 'check-circle'
+        else:
+            self.ids.circle_icon.icon = 'circle-outline'
     # def on_open_progress(self,instance,value:float):
     #     # print(instance)
     #     pass
