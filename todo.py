@@ -36,6 +36,7 @@ db = Database()
 class task_content_screen(Screen):
     regular = StringProperty('AllertaStencil-Regular.ttf')
     num_obj = StringProperty('0')
+    task_id = []
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -88,6 +89,10 @@ class task_content_screen(Screen):
         ''' pulisci input '''
         sottoObiettivo.text = ''
         self.update()
+    def swith_to_contet(self,itemlist):
+        self.task_id.append(itemlist.pk)
+        print(self.task_id)
+       
 
 class Swipecard(MDCardSwipe):
     def __init__(self,**kawrgs):
@@ -115,6 +120,8 @@ class Swipecard(MDCardSwipe):
             ''' aggorna il contatore di obbietivi '''
             # task_content = task_content_screen()
             # self.update_num_obbiettivi()
+    
+
 
     
 class OneLine_AvatarIcon_ListItem(OneLineAvatarIconListItem):
@@ -317,8 +324,15 @@ class MainApp(MDApp):
     #    
 
         self.sm.add_widget(content_task)
+       
         
-        self.sm.current = 'task content'
+        def transita_to_task_content_screen():
+            x = task_content_screen()
+            x.swith_to_contet(itemlist)
+            self.sm.current='task content'
+        transita_to_task_content_screen()
+
+
         
 
 
