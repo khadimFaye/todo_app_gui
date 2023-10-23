@@ -176,6 +176,7 @@ MainScreen:
 
 
 <task_content_screen> :
+    id : task_content
     name : 'task content'
     MDRelativeLayout:
    
@@ -311,7 +312,7 @@ MainScreen:
         id: frontbox
         md_bg_color: '#1a1a1a'
         radius: [10]
-        on_press : root.check_state(swipecard)
+        on_press : root.check_state(swipecard,)
 
 <OneLine_AvatarIcon_ListItem>:
     IconRightWidget:

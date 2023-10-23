@@ -1,9 +1,5 @@
 
-from cgitb import text
-from operator import contains
-from tkinter import dialog
-from turtle import update
-from keyboard import on_press
+
 from kivymd.app import MDApp
 from kivymd.uix.widget import Widget
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -96,13 +92,14 @@ class task_content_screen(Screen):
 class Swipecard(MDCardSwipe):
     def __init__(self,**kawrgs):
         super().__init__(**kawrgs)
+        # self.task_content = task_content
 
     def check_state(self,swipecard):
         for swipe in swipecard.parent.children:
             if swipe!=swipecard :
              
                 swipe.close_card()
-                print(swipe.state)
+                # print(swipe.state)
     def delet_sub_task(self,sub_task):
         confirmation = MDDialog(title = 'attenzione!',text ='vuoi veramente eliminare questo obiettivo?',
                 buttons = [MDRaisedButton(text='si',on_press = lambda x: confirm()),
@@ -116,8 +113,8 @@ class Swipecard(MDCardSwipe):
             confirmation.dismiss()
 
             ''' aggorna il contatore di obbietivi '''
-            task_content = task_content_screen()
-            task_content.num_obj='0' #task_content.update_num_obbiettivi()
+            # task_content = task_content_screen()
+            # self.update_num_obbiettivi()
 
     
 class OneLine_AvatarIcon_ListItem(OneLineAvatarIconListItem):
