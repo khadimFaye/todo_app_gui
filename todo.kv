@@ -2,8 +2,8 @@
 MainScreen:
 
 <MainScreen>:
+    id : s
     MDRelativeLayout:
-        id : s
         pos_hint : {'center_x':.5,'center_y':.5}
         padding:10
         canvas:
@@ -188,7 +188,7 @@ MainScreen:
             elevation : 1
             md_bg_color : '#1a1a1a'
             left_action_items : [['chevron-left',lambda x: print('hello')]]
-            right_action_items : [['swap-vertical',lambda x : root.Priorita_sort(self)]]
+            right_action_items : [['swap-vertical',lambda x : root.swith_to_home(self)]]
             pos_hint: {'center_x':.5,'center_y':.95}
 
         

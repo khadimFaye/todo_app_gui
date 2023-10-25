@@ -30,15 +30,18 @@ from datetime import datetime
 from sqlite3 import SQLITE_EMPTY,SQLITE_ERROR,OperationalError
 # from plyer import notification
 import locale  
+import time
 from database import Database
 db = Database()
 
 class task_content_screen(Screen):
     regular = StringProperty('AllertaStencil-Regular.ttf')
     num_obj = StringProperty('0')
+    lista_obj = []
+
     task_id = []
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super(task_content_screen,self).__init__(**kwargs)
 
         ''' REGOLA L ALTEZZ ADEI LAYOUT IN MODO DA AVERE SPAZIO PER  LO SCROLLING '''
         self.ids.widget_box.bind(minimum_height = self.ids.widget_box.setter('height'))
@@ -50,7 +53,7 @@ class task_content_screen(Screen):
         lista_obiettivi = [obj for obj in self.grid[0].children if isinstance(obj,MDCardSwipe)]
         num_obiettivi = len(lista_obiettivi)
         self.num_obj =str(num_obiettivi)
-        return str(num_obiettivi)
+        return self.num_obj
 
     def update(self):
 
@@ -58,12 +61,17 @@ class task_content_screen(Screen):
             j.parent.height+=j.height/7
             self.ids.widget_box.height +=j.parent.height/90
         print(self.ids.widget_box.height)
-        self.update_num_obbiettivi()
+        # self.update_num_obbiettivi()
 
-    def Priorita_sort(self,instance):
-        pass
+    def swith_to_home(self,instance):
+        self.manager.current = 'main screen'
+        self.task_id.clear()
     
     def add_subtask(self,sottoObiettivo):
+        # task_id = self.task_id[0]
+        # print(task_id)
+        subtask = db.add_subtask(sottoObiettivo.text,0,self.task_id[0])
+        print(subtask)
         ''' accedi alla list degli item tramite ID'''
         LISTA_ITEM = self.grid[0]
 
@@ -71,8 +79,8 @@ class task_content_screen(Screen):
         task_tag = MDLabel(text= f'#{self.ids.top_bar.title}',
             font_style = 'Body2',font_size=dp(10),theme_text_color='Custom',text_color ='#316bd6')
         
-        Sub_Task = OneLine_AvatarIcon_ListItem(
-            text=f'{sottoObiettivo.text}  {task_tag.text}',
+        Sub_Task = OneLine_AvatarIcon_ListItem(pk=subtask[1],
+            text=f'{subtask[0]}  {task_tag.text}',
            _no_ripple_effect = 1,divider=None, pos_hint={'center_x':.5,'center_y':.5})
 
         swipe_card = Swipecard(size_hint = (1,None),height =Sub_Task.height-10)
@@ -84,14 +92,25 @@ class task_content_screen(Screen):
         RL_Layout.add_widget(Sub_Task)
         swipe_card.ids.frontbox.add_widget(RL_Layout)
         LISTA_ITEM.add_widget(swipe_card)
+        self.lista_obj.append(swipe_card)
+        self.num_obj = str(len(self.lista_obj))
+
       
        
         ''' pulisci input '''
         sottoObiettivo.text = ''
         self.update()
     def swith_to_contet(self,itemlist):
-        self.task_id.append(itemlist.pk)
-        print(self.task_id)
+        pass
+    
+        
+
+    ''' pulisci tutti i subtasks ogni volta che lasci lo schermo '''
+    def on_leave(self):
+        self.grid[0].clear_widgets()
+        self.lista_obj.clear()
+        self.num_obj='0'
+    
        
 
 class Swipecard(MDCardSwipe):
@@ -118,14 +137,19 @@ class Swipecard(MDCardSwipe):
             confirmation.dismiss()
 
             ''' aggorna il contatore di obbietivi '''
-            # task_content = task_content_screen()
-            # self.update_num_obbiettivi()
+            app = MDApp.get_running_app()
+            screnn_manager = app.root
+            get_screen = screnn_manager.get_screen('task content')
+            get_screen.update_num_obbiettivi()
+
+            # task_content.update_num_obbiettivi()
     
 
 
     
 class OneLine_AvatarIcon_ListItem(OneLineAvatarIconListItem):
-    def __init__(self,**kwargs):
+    def __init__(self,pk=None,**kwargs):
+        self.pk = pk
         super().__init__(**kwargs)
         self.font_size = dp(10)
         self.font_style = 'Body2'
@@ -249,6 +273,7 @@ class MainApp(MDApp):
         self.sm = MDScreenManager()
         Builder.load_file('todo.kv')
         self.sm.add_widget(MainScreen(name = 'main screen'))
+        self.sm.add_widget(task_content_screen(name='task content'))
         return self.sm
     
     def Open_dialog(self):
@@ -319,19 +344,54 @@ class MainApp(MDApp):
             print(str(e))
 
     def Open_content_task_screen(self,itemlist):
-        content_task = task_content_screen(name = 'task content')
+        content_task = self.sm.get_screen('task content')
         content_task.ids.top_bar.title = itemlist.text
-    #    
+        LISTA_ITEM = content_task.grid[0]
+        all_subtask = db.get_subtasks(itemlist.pk)
+        for subtask in all_subtask:
+            if subtask !=[]:
 
-        self.sm.add_widget(content_task)
+                Sub_Task = OneLine_AvatarIcon_ListItem(pk=subtask[1],
+                text=f'{subtask[0]}',
+            _no_ripple_effect = 1,divider=None, pos_hint={'center_x':.5,'center_y':.5})
+
+                swipe_card = Swipecard(size_hint = (1,None),height =Sub_Task.height-10)
+
+                ''' crea un istansa di MDRelativeLayout '''
+                RL_Layout = MDRelativeLayout(size_hint_y = None,height=swipe_card.height,pos_hint={'center_x':.5,'center_y':.5})
+
+                RL_Layout.add_widget(Sub_Task)
+                swipe_card.ids.frontbox.add_widget(RL_Layout)
+                LISTA_ITEM.add_widget(swipe_card)
+        #    
+
+        # self.sm.add_widget(content_task)
        
         
         def transita_to_task_content_screen():
             x = task_content_screen()
-            x.swith_to_contet(itemlist)
-            self.sm.current='task content'
+            # x.swith_to_contet(itemlist)
+            print(x.ids.top_bar.title)
+            x.task_id.append(itemlist.pk)
+            # print(x.task_id)
+            # time.sleep(0.3)
+            def cambia_screen():
+
+                self.sm.transition.direction = 'right'
+                time.sleep(0.3)
+                self.sm.current='task content'
+            time.sleep(0.3)
+            cambia_screen()
         transita_to_task_content_screen()
 
+    # def acces_to_delet_subtask(self,subtask):
+    #     z = Swipecard()
+    #     z.delet_sub_task(subtask)
+    #     x = self.sm.get_screen('task content')
+    #     x.update_num_obbiettivi()
+    #     x.lista_obj.pop()
+    #     x.num_obj='ciao'
+        
 
         
 

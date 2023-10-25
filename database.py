@@ -1,12 +1,15 @@
+from ast import Return
 from optparse import Values
 import sqlite3
 from subprocess import CREATE_DEFAULT_ERROR_MODE
+from typing import Self
 
 class Database():
     def __init__(self):
         self.conn = sqlite3.connect('TODO.db')
         self.cursor = self.conn.cursor()
         self.create_table()
+        self.create_subtask_table()
 
     
     def create_table(self):
@@ -16,8 +19,9 @@ class Database():
                 desc TEXT ,
                 data TEXT ,
                 completato BOOLEAN NOT NULL CHECK (completato IN (0,1)))''')
-
+        
         self.conn.commit()
+    
     def add_task(self,tt,t,d):
         self.cursor.execute('INSERT INTO tasks (titolo, desc, data, completato) VALUES (?,?,?,?)',(tt,t,d,0))
         task = self.cursor.execute('SELECT id ,titolo,desc,data FROM tasks WHERE titolo =? and desc = ? and completato = 0',(tt,t)).fetchall()
@@ -60,10 +64,59 @@ class Database():
         self.cursor.execute('DELETE FROM tasks ')
         self.conn.commit()
         # self.conn.close()
+    
+    #////////////////////////////////// SUBT5ASK /////////////////////////////////////
+    def create_subtask_table(self):
+        self.cursor.execute('''
+        CREATE TABLE IF NOT EXISTS subtasks (
+                subtask_id INTEGER PRIMARY KEY AUTOINCREMENT ,
+                subtask VARCHAR(255) NOT NULL ,
+                completato BOOLEAN NOT NULL CHECK (completato IN(0,1)),
+                id INTEGER,
+                FOREIGN KEY (id) REFERENCES tasks (id)
+                )
+                            ''')
+        self.conn.commit()
+    
+    def add_subtask(self,subtask,task_id,c):
+        self.cursor.execute('INSERT INTO subtasks (subtask,completato,id) VALUES(?,?,?)',(subtask,task_id,c))
+        self.conn.commit()
+
+        subtask_value = self.cursor.execute('SELECT subtask,subtask_id,id FROM subtasks').fetchall()
+        return subtask_value[-1]
+
+    def get_subtasks(self,task_id):
+        get_all_subtasks = self.cursor.execute('SELECT subtask , subtask_id FROM subtasks WHERE id =?',(task_id,)).fetchall()
+       
+        get_all_subtasks.sort()
+        return get_all_subtasks[-6:]
+    
+    def delet_subtask(self,task_id,id):
+        self.cursor.execute('DELETE  FROM subtasks WHERE id = ? AND subtask_id =?',(task_id,id))
+        self.conn.commit()
+        
+    def get_market_sutasks(self,id):
+        completati = self.cursor.execute('SELECT subtask FROM subtasks WHERE completato = 0 AND WHERE id = ?'(id)).fetchall()
+        return completati
+    
+    def get__sutasks_completati(self,id):
+        completati = self.cursor.execute('SELECT subtask FROM subtasks WHERE completato = 0 AND WHERE id = ?'(id)).fetchall()
+        return completati
+
+    def get_subtask_incompletati(sefl,id):
+         incompletati = Self.cursor.execute('SELECT subtask FROM subtasks WHERE completato=0 AND id = ?').fetchall()
+         return  incompletati
+        
+
+
+
+        
 
 db = Database()
-db.create_table()
-db.mark_task_incompleti(3)
+# db.create_table()
+# db.mark_task_incompleti()
+# db.add_subtask('ciao',115)
 # db.delet_all_task()
+# db.delet_subtask(115,6)
 
 
