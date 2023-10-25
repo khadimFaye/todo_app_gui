@@ -64,6 +64,7 @@ class task_content_screen(Screen):
         # self.update_num_obbiettivi()
 
     def swith_to_home(self,instance):
+        self.manager.transition.direction = 'left'
         self.manager.current = 'main screen'
         self.task_id.clear()
     
@@ -132,15 +133,22 @@ class Swipecard(MDCardSwipe):
         print('helo')
         ''' crea un sub function per la conferma di concellazione'''
         def confirm():
+            id_sub_task_to_delet = [task.pk for child in  sub_task.children if isinstance(child,MDCardSwipeFrontBox) for sub_child in child.children if isinstance(sub_child,MDRelativeLayout) for task in sub_child.children if isinstance(task,OneLineAvatarIconListItem)]
             sub_task.parent.remove_widget(sub_task)
+            ''' crea un istanza di task content screen e ricava id del task principale '''
+            task_content=MDApp.get_running_app().root.get_screen('task content')
+            task_id = task_content.task_id[0]
+            db.delet_subtask(task_id,id_sub_task_to_delet[0])
             
             confirmation.dismiss()
 
             ''' aggorna il contatore di obbietivi '''
-            app = MDApp.get_running_app()
-            screnn_manager = app.root
-            get_screen = screnn_manager.get_screen('task content')
-            get_screen.update_num_obbiettivi()
+            app = MDApp.get_running_app().root.get_screen('task content').update_num_obbiettivi()
+            return app
+            # MDApp.get_running_app()
+            # screnn_manager = app.root
+            # get_screen = screnn_manager.get_screen('task content')
+            # get_screen.update_num_obbiettivi()
 
             # task_content.update_num_obbiettivi()
     

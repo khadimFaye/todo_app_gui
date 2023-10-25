@@ -86,27 +86,36 @@ class Database():
         return subtask_value[-1]
 
     def get_subtasks(self,task_id):
+        ''' selezione tutti i sotto obiettivi dalla tabella '''
         get_all_subtasks = self.cursor.execute('SELECT subtask , subtask_id FROM subtasks WHERE id =?',(task_id,)).fetchall()
        
         get_all_subtasks.sort()
         return get_all_subtasks[-6:]
     
     def delet_subtask(self,task_id,id):
+        ''' cancella il sotto obiettivo '''
         self.cursor.execute('DELETE  FROM subtasks WHERE id = ? AND subtask_id =?',(task_id,id))
         self.conn.commit()
         
-    def get_market_sutasks(self,id):
-        completati = self.cursor.execute('SELECT subtask FROM subtasks WHERE completato = 0 AND WHERE id = ?'(id)).fetchall()
+    def get_market_sutasks_completati(self,id):
+        ''' segna il sotto ibiettivo come comlpetato '''
+        self.cursor.execute('UPDATE subtasks SET completato=1 WHERE id = ? AND completato=0'(id))
+        self.conn.commit()
+
+        #get subtask completati 
+        completati = self.cursor.execute('SELECT subtask FROM subtasks WHERE completato = 1 AND WHERE id = ?'(id)).fetchall()
         return completati
     
-    def get__sutasks_completati(self,id):
-        completati = self.cursor.execute('SELECT subtask FROM subtasks WHERE completato = 0 AND WHERE id = ?'(id)).fetchall()
-        return completati
+    def mark__sutasks_incompletati(self,id):
+        ''' segna il sotto ibiettivo come incomlpetato '''
+        self.cursor.execute('UPDATE subtasks SET completato=0 WHERE id = ? AND completato=1'(id))   
+        self.conn.commit()
+        #get subtask incompletati
+       
+        incompletati = self.cursor.execute('SELECT subtask FROM subtasks WHERE completato = 1 AND WHERE id = ?'(id)).fetchall()
+        return incompletati
 
-    def get_subtask_incompletati(sefl,id):
-         incompletati = Self.cursor.execute('SELECT subtask FROM subtasks WHERE completato=0 AND id = ?').fetchall()
-         return  incompletati
-        
+   
 
 
 
