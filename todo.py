@@ -1,10 +1,12 @@
 
 
+
 from kivymd.app import MDApp
 from kivymd.uix.widget import Widget
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivy.lang.builder import Builder
+from kivy.core.window import Window
 # locale.setlocale(locale.LC_TIME,'it_IT.UTF-8')
 from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.screen import Screen
@@ -31,6 +33,7 @@ from sqlite3 import SQLITE_EMPTY,SQLITE_ERROR,OperationalError
 # from plyer import notification
 import locale  
 import time
+from initialScreen import InitialScreen
 from database import Database
 db = Database()
 
@@ -71,8 +74,11 @@ class task_content_screen(Screen):
     def add_subtask(self,sottoObiettivo):
         # task_id = self.task_id[0]
         # print(task_id)
+        if len(sottoObiettivo.text)>=80:
+
+            print(f'{sottoObiettivo.text[:int(len(sottoObiettivo.text)/2)]}\n{sottoObiettivo.text[int(len(sottoObiettivo.text)/2):]}')
         subtask = db.add_subtask(sottoObiettivo.text,0,self.task_id[0])
-        print(subtask)
+        print(subtask) 
         ''' accedi alla list degli item tramite ID'''
         LISTA_ITEM = self.grid[0]
 
@@ -271,6 +277,7 @@ class ListItemWith_Checkbox(ThreeLineAvatarIconListItem):
 class MainApp(MDApp):
     
     def build(self):
+        Window.size = (1082 ,640)
         self.theme_cls.theme_style='Dark'
         self.theme_cls.primary_palette = 'DeepPurple'
         self.theme_cls.material_style = 'M3'
@@ -280,6 +287,9 @@ class MainApp(MDApp):
         self.LISTA_TASK_TO_MODIFY = []
         self.sm = MDScreenManager()
         Builder.load_file('todo.kv')
+        Builder.load_file('InitialScreen.kv')
+
+        self.sm.add_widget(InitialScreen(name='initial'))
         self.sm.add_widget(MainScreen(name = 'main screen'))
         self.sm.add_widget(task_content_screen(name='task content'))
         return self.sm

@@ -1,0 +1,143 @@
+<InitialScreen>:
+    MDCard:
+        size_hint: (1,1)
+        md_bg_color : (24/255, 24/255, 24/255)
+    MDBoxLayout :
+        MDBoxLayout :
+            MDCard:
+                size_hint : (.8,1) 
+                md_bg_color: (24/255, 24/255, 24/255)
+                radius : [18]
+                elevation : 2
+                shadow_softness : 5
+
+                MDBoxLayout:
+                    MDFloatLayout:
+                        MDCard:
+                            size_hint : (.8,.8) 
+                            md_bg_color: (24/255, 24/255, 24/255)
+                            radius : [50]
+                            
+                            pos_hint : {'center_x':.5,'center_y':.5}
+						Image:
+                            source : 'assets/illustrations/bg.png' 
+                            size_hint : (None,None)
+                            width : root.width
+                            height :  root.height
+							allow_stretch : True
+							keep_ratio : 0
+                            pos_hint : {'center_x':.5,'center_y':.5}
+                        Image:
+                            source : 'assets/illustrations/desktop.png' 
+                            size_hint : (None,None)
+                            width : 500
+                            height : 500
+                            pos_hint : {'center_x':.7,'center_y':.48}
+						
+                        MDLabel:
+                            text : 'gestore task'.upper()
+							font_name : 'assets/Poppins/Poppins-Black.ttf'
+							font_size : dp(40)
+							halign : 'center'
+							theme_text_color : 'Custom'
+							text_color : 'white'
+							pos_hint : {'center_x':.35,'center_y':.7}
+						MDLabel:
+                            text : 'SEMPLIFICA TI LA VITA ORGANIZANDOE TENENDO\nTRACCIA TUTTE LE TUE ATTIVITA\nSIA LAVORATIVE CHE QUOTIDIANE.'.capitalize()
+							font_name : 'assets/Poppins/Poppins-regular.ttf'
+							font_size : dp(15)
+							halign : 'center'
+							theme_text_color : 'Custom'
+							text_color : '#d1d1d1'
+							pos_hint : {'center_x':.35,'center_y':.60}
+						#MDTopAppBar:
+							#title : ''
+							#right_action_items : [['menu']]
+							#elevation : 0.5
+							#md_bg_color : (24, 24,24)
+							#pos_hint :{ 'top':1}
+						
+						
+						MDGridLayout:
+							rows : 1
+							spacing : 10
+							pos_hint :{ 'top':.95,'x':.7}
+							MDFlatButton:
+								text : 'registrati'
+								theme_text_color : 'Custom'
+								text_color : '#F8F5F7'
+								on_press : root.registrati()
+							MDRoundFlatButton:
+								text : 'a proposito'
+								theme_text_color : 'Custom'
+								text_color : '#F8F5F7'
+								line_color : '#F8F5F7'
+								line_size : 10
+
+							
+							MDFillRoundFlatButton:
+								text : 'novita'
+								theme_text_color : 'Custom'
+								text_color : '#F8F5F7'
+
+
+						MDBoxLayout:
+							pos_hint : {'center_x':.35,'center_y':.30}
+							size_hint :(.3,None)
+							MDGridLayout :
+								cols :1
+								
+								size_hint :(.5,None)
+								height : 200
+								
+							
+								padding : 10
+								spacing : 15
+
+								MDTextField :
+									size_hint : (.5,.10)
+									hint_text : 'email'
+									hint_text_color_focus: (96/255, 27/255, 114/255)
+
+									text_color_focus : (96/255, 27/255, 114/255)
+									line_color_focus : (96/255, 27/255, 114/255)
+									mode : 'fill'
+									icon_left : 'email'
+									icon_left_color_focus : (96/255, 27/255, 114/100)
+									fill_color_normal: '#2A2A2A'
+									fill_color_focus : '#F8F5F7'
+									pos_hint : {'center_x':.5,'center_y':.5}
+
+								MDTextField :
+									id : password_input_
+									size_hint : (.4,.10)
+									hint_text : 'password'
+									hint_text_color_focus: (96/255, 27/255, 114/255)
+
+									text_color_focus : (96/255, 27/255, 114/255)
+									line_color_focus : (96/255, 27/255, 114/255)
+									password :True
+									mode : 'fill'
+									fill_color_normal:'#2A2A2A'
+									fill_color_focus : '#F8F5F7'
+									icon_left : 'key-variant'
+									icon_left_color_focus : (96/255, 27/300, 114/100)
+									line_thickness : 150
+									pos_hint : {'center_x':.5,'center_y':.5}
+							
+
+								MDRaisedButton :
+									text: 'Accedi'.title()
+									size_hint : (.8,.09)
+									md_bg_color : (53/255, 10/255, 107/255)
+									radius : [10,10,10,10]
+									pos_hint : {'center_x':.5,'center_y':.37}
+									on_press : root.swith_to_home_app()	
+						
+
+        
+
+           
+                    
+
+
