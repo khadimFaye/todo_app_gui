@@ -273,6 +273,8 @@ class ListItemWith_Checkbox(ThreeLineAvatarIconListItem):
 
         self.parent.remove_widget(itemlist)
         db.delet_task(itemlist.pk)
+        db.delet_all_subtask(itemlist.pk)
+        
         
 class MainApp(MDApp):
     
@@ -324,7 +326,7 @@ class MainApp(MDApp):
 
     def add_task(self,instance,task_title,task,date_text):
         try:
-            if  task_title.text != '' or task.text != '':
+            if  (task_title.text != '') or (task.text != ''):
 
                 if  instance.text == 'salva':
 
