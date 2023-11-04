@@ -21,6 +21,8 @@ from kivymd.uix.spinner import MDSpinner
 from kivy.clock import Clock
 from kivy.lang.builder import Builder
 from kivy.core.window import Window
+import bcrypt
+from todo import MainScreen
 
 class InitialScreen(MDScreen):
     def __init__(self,**kwargs):
@@ -36,24 +38,24 @@ class InitialScreen(MDScreen):
         user_input_box = MDBoxLayout(orientation = 'vertical',padding = 10,spacing = 18,size_hint_y = None,height = 190,pos_hint = {'center_x':.5,'center_y':.47}) 
         '''
         [NOME UTENTE  INPUT ]'''
-        self.nome = MDTextField(size_hint = (1,.10),hint_text = 'nome'.title(),hint_text_color_focus = (96/255, 27/255, 114/255),
+        self.user_name = MDTextField(size_hint = (1,.10),hint_text = 'nome'.title(),hint_text_color_focus = (96/255, 27/255, 114/255),
         text_color_focus = (96/255, 27/255, 114/255),
         max_text_length = 12,line_color_focus = (96/255, 27/255, 114/255),
         mode = 'fill',fill_color_normal ='#2A2A2A',pos_hint = {'center_x':.5,'center_y':.5})
 
-        '''
-        [COGNOME  INPUT ]'''
-        self.cognome = MDTextField(size_hint = (1,.10),hint_text = 'cognome'.title(),hint_text_color_focus = (96/255, 27/255, 114/255),
-        text_color_focus = (96/255, 27/255, 114/255),
-        max_text_length = 12,mode = 'fill',line_color_focus = (96/255, 27/255, 114/255),
-        fill_color_normal ='#2A2A2A',pos_hint = {'center_x':.5,'center_y':.5})
+        # '''
+        # [COGNOME  INPUT ]'''
+        # self.cognome = MDTextField(size_hint = (1,.10),hint_text = 'cognome'.title(),hint_text_color_focus = (96/255, 27/255, 114/255),
+        # text_color_focus = (96/255, 27/255, 114/255),
+        # max_text_length = 12,mode = 'fill',line_color_focus = (96/255, 27/255, 114/255),
+        # fill_color_normal ='#2A2A2A',pos_hint = {'center_x':.5,'center_y':.5})
 
-        '''
-        [EMAIL  INPUT ]'''
-        self.Email = MDTextField(size_hint = (1,.10),hint_text = 'email'.title(),hint_text_color_focus = (96/255, 27/255, 114/255),
-        text_color_focus = (96/255, 27/255, 114/255),validator = 'email',
-        helper_text_mode = 'on_focus',helper_text = 'user@gmail.com',mode = 'fill',line_color_focus = (96/255, 27/255, 114/255),
-        fill_color_normal ='#2A2A2A',pos_hint = {'center_x':.5,'center_y':.5})
+        # '''
+        # [EMAIL  INPUT ]'''
+        # self.Email = MDTextField(size_hint = (1,.10),hint_text = 'email'.title(),hint_text_color_focus = (96/255, 27/255, 114/255),
+        # text_color_focus = (96/255, 27/255, 114/255),validator = 'email',
+        # helper_text_mode = 'on_focus',helper_text = 'user@gmail.com',mode = 'fill',line_color_focus = (96/255, 27/255, 114/255),
+        # fill_color_normal ='#2A2A2A',pos_hint = {'center_x':.5,'center_y':.5})
 
         '''
         [PASSWORD  INPUT ]'''
@@ -72,7 +74,7 @@ class InitialScreen(MDScreen):
         accedi_if_account_exists = MDTextButton(text =  'ti sei gia registrato? accedi'.title(),font_name = 'assets/Poppins/Poppins-MediumItalic.ttf',
             font_style = 'Body2',theme_text_color = 'Custom',text_color = '#F8F5F7',pos_hint = {'center_x':.5,'center_y':.20},on_press = lambda x:self.dialog.dismiss())
 
-        widget_list = [self.nome,self.cognome,self.Email,self.password,reg_button]
+        widget_list = [self.user_name, self.password,reg_button]
         for widget in widget_list:
             user_input_box.add_widget(widget)
 
@@ -97,27 +99,28 @@ class InitialScreen(MDScreen):
         # DTE = self.password.text.encode()
         # Ecnrypted_password = CIPHER_SUITE.encrypt(DTE)
 
-        
-        url = ' http://127.0.0.1:8002/creat-user/'
-        user_json_data = dict(list(zip(['nome','cognome','Email','password'],[self.nome.text,self.cognome.text,self.Email.text,self.password])))
-        print(user_json_data)
+        # HASH IL PASSWORD PER LA SICUREZZA 
+        randow_salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(self.password.text.encode('utf-8'),randow_salt)
+        # print(user_json_data)
        
         try:
-            if user_json_data['nome'] or user_json_data['cognome'] or user_json_data['Email'] or user_json_data['password'] != None:
+            url = 'http://127.0.0.1:8001/creat-user/'
+            user_json_data = dict(list(zip(['nome_utente','password'],[self.user_name.text, str(hashed_password)])))
+            if user_json_data['nome_utente'] and user_json_data['password'] != None:
                 send_data = requests.post(url,json=user_json_data)
-                if send_data == 200:
+                if url == 200:
                     return send_data.json(),{'alert':'data sended successfully!'}
             else:
-                
-                return {'Error': 'compila tuto '}
+                print({'Error': 'compila tuto '})
 
             
         except requests.exceptions.ConnectionError as e:
             return {'Alert': 'impossisbile raggiungere il serevr '+str(e)}
         # except Exception as e:
         #     print('error',str(e))
-        except HTTPError as e:
-            return {'Alert':str(e)}
+        # except Exception as e:
+        #     print(str(e))
         
 
 
@@ -155,7 +158,7 @@ class InitialScreen(MDScreen):
         max_text_length = 12,line_color_focus = (96/255, 27/255, 114/255),
         mode = 'fill',fill_color_normal ='#2A2A2A',pos_hint = {'center_x':.5,'center_y':.5})
         
-     
+    
         '''
         [EMAIL  INPUT ]'''
         self.Email_ = MDTextField(size_hint = (1,.10),hint_text = 'email'.title(),hint_text_color_focus = (96/255, 27/255, 114/255),
@@ -187,7 +190,7 @@ class InitialScreen(MDScreen):
         self.dialog.open()
     def send_password_request(self,*args):
         try:
-         
+            
             '''
             SET THE FASTAPI REQUEST '''   
             URL = ' http://127.0.0.1:8002/recupero-password/'
@@ -200,8 +203,10 @@ class InitialScreen(MDScreen):
             e = list(str(e).split(' '))
             self.exceptions.text = ''.join(e[:7])
             Clock.schedule_once(lambda dt : setattr(self.exceptions,'text',''),5)
-    def swith_to_home_app(self):
-        self.manager.current = 'main screen'
+    def accedi(self):
+        URL = ' http://127.0.0.1:8002/get-user/'
+
+        # self.manager.current = 'main screen'
 
 
         
@@ -224,6 +229,7 @@ class MainApp(MDApp):
 
         sm = ScreenManager(transition = SlideTransition())
         sm.add_widget(InitialScreen(name = 'initial'))
+        sm.add_widget(MainScreen(name='main screen'))
         Window.bind(on_resize=self.on_window_resize)
         return sm
         

@@ -11,14 +11,15 @@ class Users(BaseModel):
     password : str
 
 app = FastAPI()
-@app.post("/send-data")
+@app.post("/creat-user")
 def read_root(user : Users ):
     db.add_user(user.nome_utente,user.password)
     print (user.nome_utente,user.password)
 
-@app.get('/get_by_name{user_name}')
-def get_user(user_name : str):
-    if user_name == Users.name:
-        return {'user_name':user_name}
+@app.get('/get-user')
+def get_user(user:Users):
+     return db.get_user(user.nome_utente, user.password)
+    
+    
 if __name__ == '__main__':
     uvicorn.run('fast_api_server:app',host = '127.0.0.1',port = 8000,reload =True)
