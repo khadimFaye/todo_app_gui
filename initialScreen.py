@@ -1,3 +1,4 @@
+from pydantic_core import Url
 import requests
 import os
 from requests.exceptions import HTTPError,ConnectionError,Timeout
@@ -22,7 +23,7 @@ from kivy.clock import Clock
 from kivy.lang.builder import Builder
 from kivy.core.window import Window
 import bcrypt
-from todo import MainScreen
+
 
 class InitialScreen(MDScreen):
     def __init__(self,**kwargs):
@@ -105,7 +106,7 @@ class InitialScreen(MDScreen):
         # print(user_json_data)
        
         try:
-            url = 'http://127.0.0.1:8001/creat-user/'
+            url = 'http://127.0.0.2:1106/creat-user/'
             user_json_data = dict(list(zip(['nome_utente','password'],[self.user_name.text, str(hashed_password)])))
             if user_json_data['nome_utente'] and user_json_data['password'] != None:
                 send_data = requests.post(url,json=user_json_data)
@@ -193,7 +194,7 @@ class InitialScreen(MDScreen):
             
             '''
             SET THE FASTAPI REQUEST '''   
-            URL = ' http://127.0.0.1:8002/recupero-password/'
+            URL = ' http://127.0.0.1:8001/recupero-password/'
 
             user_data = dict(list(zip(['nome_utent','Email'],[self.nome_utente.text,self.Email_.text])))
             send_request = requests.post(URL,json=user_data)
@@ -203,8 +204,15 @@ class InitialScreen(MDScreen):
             e = list(str(e).split(' '))
             self.exceptions.text = ''.join(e[:7])
             Clock.schedule_once(lambda dt : setattr(self.exceptions,'text',''),5)
-    def accedi(self):
-        URL = ' http://127.0.0.1:8002/get-user/'
+    def Accedi(self):
+        try:
+
+            user_data = dict(list(zip(['nome_utente','password'],[self.ids.user_name.text, self.ids.password_input.text])))
+            URL =  'http://127.0.0.2:1106/get-user/'
+            user = requests.get(URL,json=user_data)
+            print(user)
+        except requests.exceptions.ConnectionError as e :
+            print(str(e))
 
         # self.manager.current = 'main screen'
 

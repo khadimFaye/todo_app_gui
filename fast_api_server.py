@@ -18,7 +18,8 @@ def read_root(user : Users ):
 
 @app.get('/get-user')
 def get_user(user:Users):
-     return db.get_user(user.nome_utente, user.password)
+    User = db.get_user(user.nome_utente, user.password)
+    print({"User_id": User})
     
     
 if __name__ == '__main__':

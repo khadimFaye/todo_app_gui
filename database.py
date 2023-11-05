@@ -43,8 +43,8 @@ class Database():
             try:
                 conn = sqlite3.connect('TODO.db')
                 cursor = conn.cursor()
-                cursor.execute('SELECT * FROM users WHERE user_name=?,password=?',(user_name,password))
-                conn.commit()
+                user = cursor.execute('SELECT user_id,user_name,password FROM users WHERE user_name=? AND password=?',(user_name,password)).fetchall()
+                return user #--> usa AND 
             finally:
                 conn.close()
     def delet_user(self,user_id):
