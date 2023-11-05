@@ -192,8 +192,7 @@ class CARD(MDCard):
         super().__init__() 
 
         self.size_hint=(1,None)                         
-        self.height = (80)
-        self.radius = [17,17,17,17]
+        self.height = (80) 
 
 class RELATIVE_LY(MDRelativeLayout):
     ''' inizializza il relativelayout class '''

@@ -1,4 +1,4 @@
-from pydantic_core import Url
+
 import requests
 import os
 from requests.exceptions import HTTPError,ConnectionError,Timeout
@@ -106,7 +106,7 @@ class InitialScreen(MDScreen):
         # print(user_json_data)
        
         try:
-            url = 'http://127.0.0.2:1106/creat-user/'
+            url = 'http://192.168.1.16:8000/creat-user/'
             user_json_data = dict(list(zip(['nome_utente','password'],[self.user_name.text, str(hashed_password)])))
             if user_json_data['nome_utente'] and user_json_data['password'] != None:
                 send_data = requests.post(url,json=user_json_data)
@@ -194,7 +194,7 @@ class InitialScreen(MDScreen):
             
             '''
             SET THE FASTAPI REQUEST '''   
-            URL = ' http://127.0.0.1:8001/recupero-password/'
+            URL = ' http://192.168.1.16:8000/recupero-password/'
 
             user_data = dict(list(zip(['nome_utent','Email'],[self.nome_utente.text,self.Email_.text])))
             send_request = requests.post(URL,json=user_data)
@@ -208,7 +208,7 @@ class InitialScreen(MDScreen):
         try:
 
             user_data = dict(list(zip(['nome_utente','password'],[self.ids.user_name.text, self.ids.password_input.text])))
-            URL =  'http://127.0.0.2:1106/get-user/'
+            URL =  'http://192.168.1.16:8000/get-user/'
             user = requests.get(URL,json=user_data)
             print(user)
         except requests.exceptions.ConnectionError as e :

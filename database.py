@@ -5,6 +5,7 @@ from subprocess import CREATE_DEFAULT_ERROR_MODE
 from threading import Thread
 import threading
 from typing import Self
+import bcrypt
 
 class Database():
     def __init__(self):
@@ -38,12 +39,13 @@ class Database():
             finally:
                 conn.close()
 
-    def get_user(self,user_name, password):
+    def get_user(self):
+        # hased_password = bcrypt.hashpw(password.encode('utf-8'),bcrypt.gensalt())
         with self.lock:
             try:
                 conn = sqlite3.connect('TODO.db')
                 cursor = conn.cursor()
-                user = cursor.execute('SELECT user_id,user_name,password FROM users WHERE user_name=? AND password=?',(user_name,password)).fetchall()
+                user = cursor.execute('SELECT user_id,user_name,password FROM users').fetchall()
                 return user #--> usa AND 
             finally:
                 conn.close()
@@ -280,6 +282,7 @@ class Database():
         
 
 db = Database()
+# db.get_user()
 # db.create_table()
 # db.mark_task_incompleti()
 # db.add_subtask('ciao',115)
