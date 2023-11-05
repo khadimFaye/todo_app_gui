@@ -3,7 +3,7 @@
 from kivymd.app import MDApp
 from kivymd.uix.card import MDCard,MDCardSwipe,MDCardSwipeFrontBox,MDCardSwipeLayerBox
 from kivy.lang.builder import Builder
-from kivymd.uix.bottomsheet import MDBottomSheet 
+from kivymd.uix.bottomsheet import MDBottomSheet
 
 from kivy.properties import StringProperty
 KV = '''
